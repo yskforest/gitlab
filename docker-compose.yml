@@ -24,7 +24,7 @@ services:
       - '2222:22'
       - '5050:5050'
     volumes:
-      - ./volumes/config:/etc/gitlab
-      - ./volumes/logs:/var/log/gitlab
-      - ./volumes/data:/var/opt/gitlab
-      - ./volumes/ssl:/etc/gitlab/ssl:ro
+      - ./.volumes/config:/etc/gitlab
+      - ./.volumes/logs:/var/log/gitlab
+      - ./.volumes/data:/var/opt/gitlab
+      - ./.volumes/ssl:/etc/gitlab/ssl:ro

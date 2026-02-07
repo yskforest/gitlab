@@ -9,8 +9,8 @@
 # gitlab.localはIPアドレスなど環境依存
 # IPアドレスの場合、/etc/hostsに追加しなくてよい
 echo "127.0.0.1 gitlab.local" | sudo tee -a /etc/hosts
-sudo mkdir -p volumes/ssl
-cd volumes/ssl
+sudo mkdir -p .volumes/ssl
+cd .volumes/ssl
 sudo openssl req -x509 -nodes -days 3650 -newkey rsa:4096 \
   -keyout gitlab.local.key \
   -out gitlab.local.crt \
@@ -42,9 +42,9 @@ services:
       - '2222:22'
       - '5050:5050'
     volumes:
-      - ./volumes/config:/etc/gitlab
-      - ./volumes/logs:/var/log/gitlab
-      - ./volumes/data:/var/opt/gitlab
+      - ./.volumes/config:/etc/gitlab
+      - ./.volumes/logs:/var/log/gitlab
+      - ./.volumes/data:/var/opt/gitlab
 ```
 
 ```bash
@@ -61,7 +61,7 @@ sudo update-ca-certificates
 
 # 証明書をDockerに信頼させる
 sudo mkdir -p /etc/docker/certs.d/gitlab.local:5050
-sudo cp ./volumes/ssl/gitlab.local.crt /etc/docker/certs.d/gitlab.local:5050/ca.crt
+sudo cp ./.volumes/ssl/gitlab.local.crt /etc/docker/certs.d/gitlab.local:5050/ca.crt
 sudo systemctl restart docker
 
 # 証明書を変更した場合は実行する
