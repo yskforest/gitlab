@@ -81,3 +81,26 @@ docker exec -it gitlab gitlab-ctl reconfigure
 
 ## memo
 - [GitLabにPushしたソースコードをJenkinsで自動テストしてみる！](https://zenn.dev/alfredtiei/articles/45bac2eed5713c)
+- runner接続
+```yml
+  runner:
+    image: gitlab/gitlab-runner:latest
+    container_name: 'gitlab-runner'
+    restart: always
+    depends_on:
+      - gitlab
+    environment:
+      - GITLAB_RUNNER_DISABLE_COMMAND_VERIFICATION=true
+    volumes:
+      - ./volumes/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
+```
+
+```
+gitlab-runner register \
+  --non-interactive \
+  --url https://gitlab.local \
+  --token XXX \
+  --executor "docker" \
+  --docker-image docker:cli
+```
