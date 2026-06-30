@@ -20,7 +20,7 @@ services:
         registry_nginx['ssl_certificate_key'] = "/etc/gitlab/ssl/${hostname}.key"
     ports:
       - '80:80'
-      - '8929:8929'
+      - '443:8929'
       - '2222:22'
       - '5050:5050'
     volumes:
@@ -28,3 +28,15 @@ services:
       - ./.volumes/logs:/var/log/gitlab
       - ./.volumes/data:/var/opt/gitlab
       - ./.volumes/ssl:/etc/gitlab/ssl:ro
+
+#  gitlab-runner:
+#    image: gitlab/gitlab-runner:latest
+#    container_name: 'gitlab-runner'
+#    restart: always
+#    depends_on:
+#      - gitlab
+#    environment:
+#      - GITLAB_RUNNER_DISABLE_COMMAND_VERIFICATION=true
+#    volumes:
+#      - ./.volumes/gitlab-runner:/etc/gitlab-runner
+#      - /var/run/docker.sock:/var/run/docker.sock

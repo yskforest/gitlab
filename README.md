@@ -5,19 +5,19 @@
 - docker
 
 ## usage
-```bash
-# gitlab.localはIPアドレスなど環境依存
-# IPアドレスの場合、/etc/hostsに追加しなくてよい
-echo "127.0.0.1 gitlab.local" | sudo tee -a /etc/hosts
-sudo mkdir -p .volumes/ssl
-cd .volumes/ssl
-sudo openssl req -x509 -nodes -days 3650 -newkey rsa:4096 \
-  -keyout gitlab.local.key \
-  -out gitlab.local.crt \
-  -subj "/C=JP/ST=Tokyo/L=Tokyo/O=MyOrg/OU=Dev/CN=gitlab.local"
+以下のセットアップスクリプトを実行することで、必要なディレクトリの作成と自己署名SSL証明書の生成を自動で行います。
 
+```bash
+# スクリプトの実行（証明書の作成とディレクトリ作成）
+./setup.sh
+```
+
+スクリプト実行後、画面に表示される案内に従って `/etc/hosts` の設定と証明書の信頼設定を行い、以下のコマンドで起動します。
+
+```bash
 docker compose up -d
-# check init pass
+
+# 初期管理者パスワードの確認
 docker compose exec gitlab cat /etc/gitlab/initial_root_password
 ```
 
@@ -82,25 +82,13 @@ docker exec -it gitlab gitlab-ctl reconfigure
 ## memo
 - [GitLabにPushしたソースコードをJenkinsで自動テストしてみる！](https://zenn.dev/alfredtiei/articles/45bac2eed5713c)
 - runner接続
-```yml
-  runner:
-    image: gitlab/gitlab-runner:latest
-    container_name: 'gitlab-runner'
-    restart: always
-    depends_on:
-      - gitlab
-    environment:
-      - GITLAB_RUNNER_DISABLE_COMMAND_VERIFICATION=true
-    volumes:
-      - ./volumes/gitlab-runner:/etc/gitlab-runner
-      - /var/run/docker.sock:/var/run/docker.sock
 ```
-
-```
+# GitLab 16.0以降では、Admin Area -> Runners からRunnerを事前に作成し、
+# 発行された認証トークン（glrt-で始まるもの）を使用します。
 gitlab-runner register \
   --non-interactive \
   --url https://gitlab.local \
-  --token XXX \
+  --token glrt-YOUR_AUTHENTICATION_TOKEN \
   --executor "docker" \
   --docker-image docker:cli
 ```
