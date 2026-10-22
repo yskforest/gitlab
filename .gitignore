@@ -1,2 +1,4 @@
 /tmp
 /.volumes
+/backups
+__pycache__/

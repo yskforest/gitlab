@@ -3,11 +3,12 @@ services:
     image: gitlab/gitlab-ce:latest
     container_name: 'gitlab'
     restart: always
-    hostname: ${hostname}
+    hostname: ${hostname:?Set hostname in .env (for example gitlab.local)}
+    shm_size: '256m'
     environment:
       GITLAB_OMNIBUS_CONFIG: |
-        # external_url 'https://${hostname}:8929'
         external_url 'https://${hostname}'
+        letsencrypt['enable'] = false
         gitlab_rails['gitlab_shell_ssh_port'] = 2222
         nginx['listen_port'] = 8929
         nginx['listen_https'] = true
@@ -29,14 +30,15 @@ services:
       - ./.volumes/data:/var/opt/gitlab
       - ./.volumes/ssl:/etc/gitlab/ssl:ro
 
-#  gitlab-runner:
-#    image: gitlab/gitlab-runner:latest
-#    container_name: 'gitlab-runner'
-#    restart: always
-#    depends_on:
-#      - gitlab
-#    environment:
-#      - GITLAB_RUNNER_DISABLE_COMMAND_VERIFICATION=true
-#    volumes:
-#      - ./.volumes/gitlab-runner:/etc/gitlab-runner
-#      - /var/run/docker.sock:/var/run/docker.sock
+  gitlab-runner:
+    image: gitlab/gitlab-runner:latest
+    profiles: ['ci']
+    restart: always
+    depends_on:
+      gitlab:
+        condition: service_healthy
+    extra_hosts:
+      - '${hostname}:host-gateway'
+    volumes:
+      - ./.volumes/gitlab-runner:/etc/gitlab-runner
+      - /var/run/docker.sock:/var/run/docker.sock
